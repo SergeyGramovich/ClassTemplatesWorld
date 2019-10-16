@@ -44,7 +44,7 @@ namespace ClassTemplatesWorld
             LoadAllClasses();
         }
 
-        // Загрузка всех классов на холст
+        // Загрузка всех классов на холст (canvas)
         public void LoadAllClasses()
         {
             currentProgramDirectory = Directory.GetCurrentDirectory() + "\\";
