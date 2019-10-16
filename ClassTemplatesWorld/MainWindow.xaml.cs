@@ -683,76 +683,79 @@ namespace ClassTemplatesWorld
         {
             if (GetMouseClass)
             {
-                Point mousePosClassCanvasNew = e.GetPosition(bigCanvas);
-                Point CanvasElement = new Point((double)TakeClassGrid.GetValue(Canvas.LeftProperty), (double)TakeClassGrid.GetValue(Canvas.TopProperty));
-                if (CanvasElement.X < 0) { CanvasElement.X = 0; } else if (CanvasElement.Y < 0) { CanvasElement.Y = 0; }
-                if (CanvasElement.X > bigCanvas.Width - 400) { CanvasElement.X = (bigCanvas.Width - 400) - 1; } else if (CanvasElement.Y > bigCanvas.Height - 109) { CanvasElement.Y = (bigCanvas.Height - 109) - 1; }
-                Canvas.SetLeft(TakeClassGrid, CanvasElement.X + (mousePosClassCanvasNew.X - mousePosClassCanvasOld.X));
-                Canvas.SetTop(TakeClassGrid, CanvasElement.Y + (mousePosClassCanvasNew.Y - mousePosClassCanvasOld.Y));
-                mousePosClassCanvasOld.X = mousePosClassCanvasNew.X;
-                mousePosClassCanvasOld.Y = mousePosClassCanvasNew.Y;
-
-                DataClass ExampleClass = new DataClass();
-
-                List<string> allClasses = new List<string>(); // Список всех путей ко всем классом текущего проекта
-                List<string> allDirectories = Directory.GetDirectories(currentProgramDirectory + "Projects\\" + currentProjectName + "\\").ToList();
-                foreach (string s in allDirectories)
+                if(TakeClassGrid != null)
                 {
-                    string[] files = Directory.GetFiles(s);
-                    foreach (string f in files)
-                    {
-                        if (!f.Contains("RichTextBox")) { allClasses.Add(f); }
-                    }
-                }
+                    Point mousePosClassCanvasNew = e.GetPosition(bigCanvas);
+                    Point CanvasElement = new Point((double)TakeClassGrid.GetValue(Canvas.LeftProperty), (double)TakeClassGrid.GetValue(Canvas.TopProperty));
+                    if (CanvasElement.X < 0) { CanvasElement.X = 0; } else if (CanvasElement.Y < 0) { CanvasElement.Y = 0; }
+                    if (CanvasElement.X > bigCanvas.Width - 400) { CanvasElement.X = (bigCanvas.Width - 400) - 1; } else if (CanvasElement.Y > bigCanvas.Height - 109) { CanvasElement.Y = (bigCanvas.Height - 109) - 1; }
+                    Canvas.SetLeft(TakeClassGrid, CanvasElement.X + (mousePosClassCanvasNew.X - mousePosClassCanvasOld.X));
+                    Canvas.SetTop(TakeClassGrid, CanvasElement.Y + (mousePosClassCanvasNew.Y - mousePosClassCanvasOld.Y));
+                    mousePosClassCanvasOld.X = mousePosClassCanvasNew.X;
+                    mousePosClassCanvasOld.Y = mousePosClassCanvasNew.Y;
 
-                foreach (string s in allClasses)
-                {
-                    if (s == currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + TakeClassGrid.Name + "\\" + TakeClassGrid.Name + ".json") // Находится файл с именем перемещаемого класса
+                    DataClass ExampleClass = new DataClass();
+
+                    List<string> allClasses = new List<string>(); // Список всех путей ко всем классом текущего проекта
+                    List<string> allDirectories = Directory.GetDirectories(currentProgramDirectory + "Projects\\" + currentProjectName + "\\").ToList();
+                    foreach (string s in allDirectories)
                     {
-                        using (FileStream fs = new FileStream(s, FileMode.Open))
+                        string[] files = Directory.GetFiles(s);
+                        foreach (string f in files)
                         {
-                            DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(DataClass));
-                            try
-                            {
-                                ExampleClass = (DataClass)jsonSerializer.ReadObject(fs); // Загружается файл перемещаемого класса в переменную ExampleClass
-                            }
-                            catch (Exception)
-                            {
-                                MessageBox.Show("Проблемы с файлом: " + s);
-                            }
+                            if (!f.Contains("RichTextBox")) { allClasses.Add(f); }
                         }
                     }
-                }
-                if (ExampleClass.parentClassNameForThis != null) // Если у перемещаемого класса в его свойстве parentClassNameForThis указан родитель
-                {
-                    foreach (string s in allClasses) // Тогда найти этого родителя, а у него найти его координаты
+
+                    foreach (string s in allClasses)
                     {
-                        if (s == currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + ExampleClass.parentClassNameForThis + "\\" + ExampleClass.parentClassNameForThis + ".json")
+                        if (s == currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + TakeClassGrid.Name + "\\" + TakeClassGrid.Name + ".json") // Находится файл с именем перемещаемого класса
                         {
                             using (FileStream fs = new FileStream(s, FileMode.Open))
                             {
+                                DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(DataClass));
                                 try
                                 {
-                                    DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(DataClass));
-                                    ExampleClass = (DataClass)jsonSerializer.ReadObject(fs);
-                                    TakeClassGrid.Tag = ExampleClass.className;
-                                    Point ParentPoint = ExampleClass.canvasPointClass;
-                                    Point ChildPoint = new Point((double)TakeClassGrid.GetValue(Canvas.LeftProperty), (double)TakeClassGrid.GetValue(Canvas.TopProperty));
-                                    Line[] lines = bigCanvas.Children.OfType<Line>().ToArray();
-                                    foreach (Line l in lines) // Постоянно удалять старые линии
-                                    {
-                                        if (l.Name == TakeClassGrid.Name)
-                                        {
-                                            bigCanvas.Children.Remove(l);
-                                        }
-                                    }
-                                    // А создавать новые (новую, по текущему положение)
-                                    Line line = new Line { Name = TakeClassGrid.Name, X1 = ParentPoint.X + 200, Y1 = ParentPoint.Y + 109, X2 = ChildPoint.X + 200, Y2 = ChildPoint.Y, Fill = new SolidColorBrush(Colors.Yellow), Stroke = new SolidColorBrush(Color.FromRgb(253, 221, 4)), StrokeThickness = 4 };
-                                    bigCanvas.Children.Add(line);
+                                    ExampleClass = (DataClass)jsonSerializer.ReadObject(fs); // Загружается файл перемещаемого класса в переменную ExampleClass
                                 }
                                 catch (Exception)
                                 {
                                     MessageBox.Show("Проблемы с файлом: " + s);
+                                }
+                            }
+                        }
+                    }
+                    if (ExampleClass.parentClassNameForThis != null) // Если у перемещаемого класса в его свойстве parentClassNameForThis указан родитель
+                    {
+                        foreach (string s in allClasses) // Тогда найти этого родителя, а у него найти его координаты
+                        {
+                            if (s == currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + ExampleClass.parentClassNameForThis + "\\" + ExampleClass.parentClassNameForThis + ".json")
+                            {
+                                using (FileStream fs = new FileStream(s, FileMode.Open))
+                                {
+                                    try
+                                    {
+                                        DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(DataClass));
+                                        ExampleClass = (DataClass)jsonSerializer.ReadObject(fs);
+                                        TakeClassGrid.Tag = ExampleClass.className;
+                                        Point ParentPoint = ExampleClass.canvasPointClass;
+                                        Point ChildPoint = new Point((double)TakeClassGrid.GetValue(Canvas.LeftProperty), (double)TakeClassGrid.GetValue(Canvas.TopProperty));
+                                        Line[] lines = bigCanvas.Children.OfType<Line>().ToArray();
+                                        foreach (Line l in lines) // Постоянно удалять старые линии
+                                        {
+                                            if (l.Name == TakeClassGrid.Name)
+                                            {
+                                                bigCanvas.Children.Remove(l);
+                                            }
+                                        }
+                                        // А создавать новые (новую, по текущему положение)
+                                        Line line = new Line { Name = TakeClassGrid.Name, X1 = ParentPoint.X + 200, Y1 = ParentPoint.Y + 109, X2 = ChildPoint.X + 200, Y2 = ChildPoint.Y, Fill = new SolidColorBrush(Colors.Yellow), Stroke = new SolidColorBrush(Color.FromRgb(253, 221, 4)), StrokeThickness = 4 };
+                                        bigCanvas.Children.Add(line);
+                                    }
+                                    catch (Exception)
+                                    {
+                                        MessageBox.Show("Проблемы с файлом: " + s);
+                                    }
                                 }
                             }
                         }
@@ -947,7 +950,7 @@ namespace ClassTemplatesWorld
         {            
             if (bigCanvas.Visibility == Visibility.Visible) // Если bigCanvas открыт, то закроет его, а на его месте создаст и откроет littleCanvas, на который загрузит в миниатюре все что было в bigCanvas (в том числе и положение скрола (ScrollViewer1))
             {
-                if (TakeClassGrid != null) { TakeClassGrid.Children.RemoveAt(0); }
+                if (TakeClassGrid != null) { TakeClassGrid.Children.RemoveAt(0); TakeClassGrid = null; }
                 Canvas littleCanvas = new Canvas { Name = "littleCanvas", Background = new SolidColorBrush(Color.FromRgb(178, 178, 178)), Width = bigCanvas.Width, Height = bigCanvas.Height };
                 littleCanvas.Visibility = Visibility.Visible;
                 bigCanvas.Visibility = Visibility.Collapsed;
@@ -956,10 +959,15 @@ namespace ClassTemplatesWorld
                 foreach (Grid g in grids)
                 {
                     Grid grid = new Grid { Width = g.Width / 3, Height = g.Height / 3, Background = new SolidColorBrush(Color.FromRgb(108, 108, 109)) };
-                    Border border = new Border { Width = g.Children.OfType<Border>().First<Border>().Width / 2.5, Height = g.Children.OfType<Border>().First<Border>().Height / 2.5, Background = new SolidColorBrush(Colors.White), CornerRadius = new CornerRadius(6), VerticalAlignment = VerticalAlignment.Center, BorderBrush = new SolidColorBrush(Color.FromRgb(65, 65, 65)), BorderThickness = new Thickness(2), Margin = new Thickness(0, 0, 0, 22 / 2.5) };
-                    TextBlock textBlock = new TextBlock { Text = g.Children.OfType<TextBlock>().First<TextBlock>().Text, Width = 296 / 2.5, FontSize = 19 / 2, VerticalAlignment = VerticalAlignment.Center, TextAlignment = TextAlignment.Center, Foreground = new SolidColorBrush(Color.FromRgb(43, 145, 175)), Margin = new Thickness(0, 0, 0, 22 / 2.5) };
-                    grid.Children.Add(border);
-                    grid.Children.Add(textBlock);
+                    try
+                    {
+                        TextBlock textBlock = new TextBlock { Text = g.Children.OfType<TextBlock>().First<TextBlock>().Text, Width = 296 / 2.5, FontSize = 19 / 2, VerticalAlignment = VerticalAlignment.Center, TextAlignment = TextAlignment.Center, Foreground = new SolidColorBrush(Color.FromRgb(43, 145, 175)), Margin = new Thickness(0, 0, 0, 22 / 2.5) };
+                        Border border = new Border { Width = g.Children.OfType<Border>().First<Border>().Width / 2.5, Height = g.Children.OfType<Border>().First<Border>().Height / 2.5, Background = new SolidColorBrush(Colors.White), CornerRadius = new CornerRadius(6), VerticalAlignment = VerticalAlignment.Center, BorderBrush = new SolidColorBrush(Color.FromRgb(65, 65, 65)), BorderThickness = new Thickness(2), Margin = new Thickness(0, 0, 0, 22 / 2.5) };
+                        grid.Children.Add(border);
+                        grid.Children.Add(textBlock);
+                    }
+                    catch (Exception) { }
+
                     littleCanvas.Children.Add(grid);
                     Canvas.SetLeft(grid, new Point((double)g.GetValue(Canvas.LeftProperty), (double)g.GetValue(Canvas.TopProperty)).X / 3);
                     Canvas.SetTop(grid, new Point((double)g.GetValue(Canvas.LeftProperty), (double)g.GetValue(Canvas.TopProperty)).Y / 3);
