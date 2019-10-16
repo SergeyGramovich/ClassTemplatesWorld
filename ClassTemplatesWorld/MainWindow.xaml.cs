@@ -44,7 +44,7 @@ namespace ClassTemplatesWorld
             LoadAllClasses();
         }
 
-        // Загрузка всех классов (из папки "Classes") на холст
+        // Загрузка всех классов на холст
         public void LoadAllClasses()
         {
             currentProgramDirectory = Directory.GetCurrentDirectory() + "\\";
@@ -59,7 +59,7 @@ namespace ClassTemplatesWorld
                 ProjectName.Text = currentProjectName;
             }
 
-            if (File.Exists(currentProgramDirectory + "CanvasSize.json"))
+            if (File.Exists(currentProgramDirectory + "CanvasSize.json")) // Загрузка актуального размера bigCanvas
             {
                 using (FileStream fs = new FileStream(currentProgramDirectory + "CanvasSize.json", FileMode.Open))
                 {
@@ -70,9 +70,20 @@ namespace ClassTemplatesWorld
             bigCanvas.Width = canvasSize;
             bigCanvas.Height = canvasSize;
             RoutedEventArgs e = new RoutedEventArgs();
+
             try
             {
-                string[] allClassFiles = Directory.GetFiles(currentProgramDirectory + "Projects\\" + currentProjectName);
+                List<string> allClassFiles = new List<string>(); // Список всех путей ко всем классом текущего проекта
+                List<string> allDirectories = Directory.GetDirectories(currentProgramDirectory + "Projects\\" + currentProjectName + "\\").ToList();
+                foreach (string s in allDirectories)
+                {
+                    string[] files = Directory.GetFiles(s);
+                    foreach (string f in files)
+                    {
+                        if (!f.Contains("RichTextBox")) { allClassFiles.Add(f); }
+                    }
+                }
+
                 foreach (string s in allClassFiles)
                 {
                     using (FileStream fs2 = new FileStream(s, FileMode.Open))
@@ -123,7 +134,7 @@ namespace ClassTemplatesWorld
                     }
                     else
                     {
-                        if (File.Exists(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + NewClassNameTextBox.Text + ".json")) { MessageBox.Show("Класс с таким именем уже создан."); } // Проверка введенного нового имени класса. Если такое имя уже есть, не создаст класс
+                        if (Directory.Exists(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + NewClassNameTextBox.Text)) { MessageBox.Show("Класс с таким именем уже создан."); } // Проверка введенного нового имени класса. Если такое имя уже есть, не создаст класс
                         else
                         {
                             //___CREATE DataClass OBJECT___
@@ -134,8 +145,9 @@ namespace ClassTemplatesWorld
                             allClassesListBox.ItemsSource = allClassesList2;
                             allClassesListBox.ItemsSource = allClassesList;
 
-                            // Создание файла (в папке) для этого класса
-                            using (FileStream fs = new FileStream(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + dt.className + ".json", FileMode.Create))
+                            // Создание файла для этого класса
+                            Directory.CreateDirectory(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + NewClassNameTextBox.Text);
+                            using (FileStream fs = new FileStream(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + dt.className + "\\" + dt.className + ".json", FileMode.Create))
                             {
                                 DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(DataClass));
                                 jsonSerializer.WriteObject(fs, dt);
@@ -147,7 +159,6 @@ namespace ClassTemplatesWorld
 
                 if (createOreLoadNewClass)
                 {
-                    int a = 0;
                     //___CREATE UIClass OBJECT___
 
                     UIClass uIClass = new UIClass();
@@ -186,27 +197,7 @@ namespace ClassTemplatesWorld
                     uIClass.rightARichTextBox = new RichTextBox { Name = "rightARichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true,   VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -120, -430, -278), Visibility = Visibility.Collapsed, FontStyle = FontStyles.Normal };
                     uIClass.rightARichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.rightARichTextBox.GotFocus += ChildrenGotFocus;
-                    uIClass.rightARichTextBox.LostFocus += LostFocusClassSaving;
-                    uIClass.rightARichTextBox.LostFocus += DeleteAllRichTextBoxTextLostFocus;
-                    if (dt.rightAParagraphInlinesCount.Count > 0)
-                    {
-                        int rightAInlinesCount = 0;
-                        FlowDocument rightAflowDocument = new FlowDocument();
-                        uIClass.rightARichTextBox.Document = rightAflowDocument;
-                        foreach (int count in dt.rightAParagraphInlinesCount)
-                        {
-                            Paragraph rightAParagraph = new Paragraph();
-                            for (int i = 0; i < count; i++) // Создание первого параграфа
-                            {
-                                Run run = new Run { Text = dt.rightAInlineText[rightAInlinesCount], FontSize = dt.rightAInlineTextFontSize[rightAInlinesCount], Foreground = new SolidColorBrush(dt.rightAInlineTextColor[rightAInlinesCount]) };
-                                if (dt.rightAInlineTextFontWeight[rightAInlinesCount]) { run.FontWeight = FontWeights.Bold; }
-                                rightAParagraph.Inlines.Add(run);
-                                rightAInlinesCount++;
-                            }
-                            rightAflowDocument.Blocks.Add(rightAParagraph);
-                        }
-                        rightAInlinesCount = 0;
-                    }
+                    uIClass.rightARichTextBox.LostFocus += SaveRichTextBoxLostFocus;
 
                     // right Static A
                     uIClass.rightStaticACheckBox = new CheckBox { Name = "rightStaticA", Width = 16, Height = 16, Margin = new Thickness(320, 0, 0, 56), IsChecked = dt.rightStaticADataClassCheckBox, Opacity = 0.4 };
@@ -224,27 +215,7 @@ namespace ClassTemplatesWorld
                     uIClass.rightStaticARichTextBox = new RichTextBox { Name = "rightStaticARichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -110, -430, -300), Visibility = Visibility.Collapsed };
                     uIClass.rightStaticARichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.rightStaticARichTextBox.GotFocus += ChildrenGotFocus;
-                    uIClass.rightStaticARichTextBox.LostFocus += LostFocusClassSaving;
-                    uIClass.rightStaticARichTextBox.LostFocus += DeleteAllRichTextBoxTextLostFocus;
-                    if (dt.rightStaticAParagraphInlinesCount.Count > 0)
-                    {
-                        int rightStaticAInlinesCount = 0;
-                        FlowDocument rightStaticAflowDocument = new FlowDocument();
-                        uIClass.rightStaticARichTextBox.Document = rightStaticAflowDocument;
-                        foreach (int count in dt.rightStaticAParagraphInlinesCount)
-                        {
-                            Paragraph rightStaticAParagraph = new Paragraph();
-                            for (int i = 0; i < count; i++) // Создание первого параграфа
-                            {
-                                Run run = new Run { Text = dt.rightStaticAInlineText[rightStaticAInlinesCount], FontSize = dt.rightStaticAInlineTextFontSize[rightStaticAInlinesCount], Foreground = new SolidColorBrush(dt.rightStaticAInlineTextColor[rightStaticAInlinesCount]) };
-                                if (dt.rightStaticAInlineTextFontWeight[rightStaticAInlinesCount]) { run.FontWeight = FontWeights.Bold; }
-                                rightStaticAParagraph.Inlines.Add(run);
-                                rightStaticAInlinesCount++;
-                            }
-                            rightStaticAflowDocument.Blocks.Add(rightStaticAParagraph);
-                        }
-                        rightStaticAInlinesCount = 0;
-                    }
+                    uIClass.rightStaticARichTextBox.LostFocus += SaveRichTextBoxLostFocus;
 
                     // right Constr
                     uIClass.rightConstrCheckBox = new CheckBox { Name = "rightConstr", Width = 16, Height = 16, Margin = new Thickness(320, 0, 0, 18), IsChecked = dt.rightConstrDataClassCheckBox, Opacity = 0.4 };
@@ -260,27 +231,7 @@ namespace ClassTemplatesWorld
                     uIClass.rightConstrRichTextBox = new RichTextBox { Name = "rightConstrRichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -90, -430, -318), Visibility = Visibility.Collapsed };
                     uIClass.rightConstrRichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.rightConstrRichTextBox.GotFocus += ChildrenGotFocus;
-                    uIClass.rightConstrRichTextBox.LostFocus += LostFocusClassSaving;
-                    uIClass.rightConstrRichTextBox.LostFocus += DeleteAllRichTextBoxTextLostFocus;
-                    if (dt.rightConstrParagraphInlinesCount.Count > 0)
-                    {
-                        int rightConstrInlinesCount = 0;
-                        FlowDocument rightConstrflowDocument = new FlowDocument();
-                        uIClass.rightConstrRichTextBox.Document = rightConstrflowDocument;
-                        foreach (int count in dt.rightConstrParagraphInlinesCount)
-                        {
-                            Paragraph rightConstrParagraph = new Paragraph();
-                            for (int i = 0; i < count; i++) // Создание первого параграфа
-                            {
-                                Run run = new Run { Text = dt.rightConstrInlineText[rightConstrInlinesCount], FontSize = dt.rightConstrInlineTextFontSize[rightConstrInlinesCount], Foreground = new SolidColorBrush(dt.rightStaticAInlineTextColor[rightConstrInlinesCount]) };
-                                if (dt.rightConstrInlineTextFontWeight[rightConstrInlinesCount]) { run.FontWeight = FontWeights.Bold; }
-                                rightConstrParagraph.Inlines.Add(run);
-                                rightConstrInlinesCount++;
-                            }
-                            rightConstrflowDocument.Blocks.Add(rightConstrParagraph);
-                        }
-                        rightConstrInlinesCount = 0;
-                    }
+                    uIClass.rightConstrRichTextBox.LostFocus += SaveRichTextBoxLostFocus;
 
                     // right Meth
                     uIClass.rightMethCheckBox = new CheckBox { Name = "rightMeth", Width = 16, Height = 16, Margin = new Thickness(320, 20, 0, 0), IsChecked = dt.rightMethDataClassCheckBox, Opacity = 0.4 };
@@ -296,27 +247,7 @@ namespace ClassTemplatesWorld
                     uIClass.rightMethRichTextBox = new RichTextBox { Name = "rightMethRichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -66, -430, -332), Visibility = Visibility.Collapsed };
                     uIClass.rightMethRichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.rightMethRichTextBox.GotFocus += ChildrenGotFocus;
-                    uIClass.rightMethRichTextBox.LostFocus += LostFocusClassSaving;
-                    uIClass.rightMethRichTextBox.LostFocus += DeleteAllRichTextBoxTextLostFocus;
-                    if (dt.rightMethParagraphInlinesCount.Count > 0)
-                    {
-                        int rightMethInlinesCount = 0;
-                        FlowDocument rightMethflowDocument = new FlowDocument();
-                        uIClass.rightMethRichTextBox.Document = rightMethflowDocument;
-                        foreach (int count in dt.rightMethParagraphInlinesCount)
-                        {
-                            Paragraph rightMethParagraph = new Paragraph();
-                            for (int i = 0; i < count; i++) // Создание первого параграфа
-                            {
-                                Run run = new Run { Text = dt.rightMethInlineText[rightMethInlinesCount], FontSize = dt.rightMethInlineTextFontSize[rightMethInlinesCount], Foreground = new SolidColorBrush(dt.rightMethInlineTextColor[rightMethInlinesCount]) };
-                                if (dt.rightMethInlineTextFontWeight[rightMethInlinesCount]) { run.FontWeight = FontWeights.Bold; }
-                                rightMethParagraph.Inlines.Add(run);
-                                rightMethInlinesCount++;
-                            }
-                            rightMethflowDocument.Blocks.Add(rightMethParagraph);
-                        }
-                        rightMethInlinesCount = 0;
-                    }
+                    uIClass.rightMethRichTextBox.LostFocus += SaveRichTextBoxLostFocus;
 
                     // right StaticMeth
                     uIClass.rightStaticMethCheckBox = new CheckBox { Name = "rightStaticMeth", Width = 16, Height = 16, Margin = new Thickness(320, 52, 0, 0), IsChecked = dt.rightStaticMethDataClassCheckBox, Opacity = 0.4 };
@@ -333,27 +264,7 @@ namespace ClassTemplatesWorld
                     uIClass.rightStaticMethRichTextBox = new RichTextBox { Name = "rightStaticMethRichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -50, -430, -348), Visibility = Visibility.Collapsed };
                     uIClass.rightStaticMethRichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.rightStaticMethRichTextBox.GotFocus += ChildrenGotFocus;
-                    uIClass.rightStaticMethRichTextBox.LostFocus += LostFocusClassSaving;
-                    uIClass.rightStaticMethRichTextBox.LostFocus += DeleteAllRichTextBoxTextLostFocus;
-                    if (dt.rightStaticMethParagraphInlinesCount.Count > 0)
-                    {
-                        int rightStaticMethInlinesCount = 0;
-                        FlowDocument rightStaticMethflowDocument = new FlowDocument();
-                        uIClass.rightStaticMethRichTextBox.Document = rightStaticMethflowDocument;
-                        foreach (int count in dt.rightStaticMethParagraphInlinesCount)
-                        {
-                            Paragraph rightStaticMethParagraph = new Paragraph();
-                            for (int i = 0; i < count; i++) // Создание первого параграфа
-                            {
-                                Run run = new Run { Text = dt.rightStaticMethInlineText[rightStaticMethInlinesCount], FontSize = dt.rightStaticMethInlineTextFontSize[rightStaticMethInlinesCount], Foreground = new SolidColorBrush(dt.rightStaticMethInlineTextColor[rightStaticMethInlinesCount]) };
-                                if (dt.rightStaticMethInlineTextFontWeight[rightStaticMethInlinesCount]) { run.FontWeight = FontWeights.Bold; }
-                                rightStaticMethParagraph.Inlines.Add(run);
-                                rightStaticMethInlinesCount++;
-                            }
-                            rightStaticMethflowDocument.Blocks.Add(rightStaticMethParagraph);
-                        }
-                        rightStaticMethInlinesCount = 0;
-                    }
+                    uIClass.rightStaticMethRichTextBox.LostFocus += SaveRichTextBoxLostFocus;
 
                     // right Message
                     uIClass.rightMessageCheckBox = new CheckBox { Name = "rightMessage", Width = 16, Height = 16, Margin = new Thickness(320, 90, 0, 0), IsChecked = dt.rightMessageDataClassCheckBox, Opacity = 0.4 };
@@ -369,27 +280,7 @@ namespace ClassTemplatesWorld
                     uIClass.rightMessageRichTextBox = new RichTextBox { Name = "rightMessageRichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -30, -430, -366), Visibility = Visibility.Collapsed };
                     uIClass.rightMessageRichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.rightMessageRichTextBox.GotFocus += ChildrenGotFocus;
-                    uIClass.rightMessageRichTextBox.LostFocus += LostFocusClassSaving;
-                    uIClass.rightMessageRichTextBox.LostFocus += DeleteAllRichTextBoxTextLostFocus;
-                    if (dt.rightMessageParagraphInlinesCount.Count > 0)
-                    {
-                        int rightMessageInlinesCount = 0;
-                        FlowDocument rightMessageflowDocument = new FlowDocument();
-                        uIClass.rightMessageRichTextBox.Document = rightMessageflowDocument;
-                        foreach (int count in dt.rightMessageParagraphInlinesCount)
-                        {
-                            Paragraph rightMessageParagraph = new Paragraph();
-                            for (int i = 0; i < count; i++) // Создание первого параграфа
-                            {
-                                Run run = new Run { Text = dt.rightMessageInlineText[rightMessageInlinesCount], FontSize = dt.rightMessageInlineTextFontSize[rightMessageInlinesCount], Foreground = new SolidColorBrush(dt.rightStaticMethInlineTextColor[rightMessageInlinesCount]) };
-                                if (dt.rightMessageInlineTextFontWeight[rightMessageInlinesCount]) { run.FontWeight = FontWeights.Bold; }
-                                rightMessageParagraph.Inlines.Add(run);
-                                rightMessageInlinesCount++;
-                            }
-                            rightMessageflowDocument.Blocks.Add(rightMessageParagraph);
-                        }
-                        rightMessageInlinesCount = 0;
-                    }
+                    uIClass.rightMessageRichTextBox.LostFocus += SaveRichTextBoxLostFocus;
 
                     // Left
 
@@ -408,27 +299,7 @@ namespace ClassTemplatesWorld
                     uIClass.leftARichTextBox = new RichTextBox { Name = "leftARichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(-430, -120, 430, -278), Visibility = Visibility.Collapsed };
                     uIClass.leftARichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.leftARichTextBox.GotFocus += ChildrenGotFocus;
-                    uIClass.leftARichTextBox.LostFocus += LostFocusClassSaving;
-                    uIClass.leftARichTextBox.LostFocus += DeleteAllRichTextBoxTextLostFocus;
-                    if (dt.leftAParagraphInlinesCount.Count > 0)
-                    {
-                        int leftAInlinesCount = 0;
-                        FlowDocument leftAflowDocument = new FlowDocument();
-                        uIClass.leftARichTextBox.Document = leftAflowDocument;
-                        foreach (int count in dt.leftAParagraphInlinesCount)
-                        {
-                            Paragraph leftAParagraph = new Paragraph();
-                            for (int i = 0; i < count; i++) // Создание первого параграфа
-                            {
-                                Run run = new Run { Text = dt.leftAInlineText[leftAInlinesCount], FontSize = dt.leftAInlineTextFontSize[leftAInlinesCount], Foreground = new SolidColorBrush(dt.leftAInlineTextColor[leftAInlinesCount]) };
-                                if (dt.leftAInlineTextFontWeight[leftAInlinesCount]) { run.FontWeight = FontWeights.Bold; }
-                                leftAParagraph.Inlines.Add(run);
-                                leftAInlinesCount++;
-                            }
-                            leftAflowDocument.Blocks.Add(leftAParagraph);
-                        }
-                        leftAInlinesCount = 0;
-                    }
+                    uIClass.leftARichTextBox.LostFocus += SaveRichTextBoxLostFocus;
 
                     // left Meth
                     uIClass.leftMethCheckBox = new CheckBox { Name = "leftMeth", Width = 16, Height = 16, Margin = new Thickness(0, 20, 320, 0), IsChecked = dt.leftMethDataClassCheckBox, Opacity = 0.4 };
@@ -444,27 +315,7 @@ namespace ClassTemplatesWorld
                     uIClass.leftMethRichTextBox = new RichTextBox { Name = "leftMethRichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(-430, -66, 430, -332), Visibility = Visibility.Collapsed };
                     uIClass.leftMethRichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.leftMethRichTextBox.GotFocus += ChildrenGotFocus;
-                    uIClass.leftMethRichTextBox.LostFocus += LostFocusClassSaving;
-                    uIClass.leftMethRichTextBox.LostFocus += DeleteAllRichTextBoxTextLostFocus;
-                    if (dt.leftMethParagraphInlinesCount.Count > 0)
-                    {
-                        int leftMethInlinesCount = 0;
-                        FlowDocument leftMethflowDocument = new FlowDocument();
-                        uIClass.leftMethRichTextBox.Document = leftMethflowDocument;
-                        foreach (int count in dt.leftMethParagraphInlinesCount)
-                        {
-                            Paragraph leftMethParagraph = new Paragraph();
-                            for (int i = 0; i < count; i++) // Создание первого параграфа
-                            {
-                                Run run = new Run { Text = dt.leftMethInlineText[leftMethInlinesCount], FontSize = dt.leftMethInlineTextFontSize[leftMethInlinesCount], Foreground = new SolidColorBrush(dt.leftMethInlineTextColor[leftMethInlinesCount]) };
-                                if (dt.leftMethInlineTextFontWeight[leftMethInlinesCount]) { run.FontWeight = FontWeights.Bold; }
-                                leftMethParagraph.Inlines.Add(run);
-                                leftMethInlinesCount++;
-                            }
-                            leftMethflowDocument.Blocks.Add(leftMethParagraph);
-                        }
-                        leftMethInlinesCount = 0;
-                    }
+                    uIClass.leftMethRichTextBox.LostFocus += SaveRichTextBoxLostFocus;
 
                     // left Static Meth
                     uIClass.leftStaticMethCheckBox = new CheckBox { Name = "leftStaticMeth", Width = 16, Height = 16, Margin = new Thickness(0, 52, 320, 0), IsChecked = dt.leftStaticMethDataClassCheckBox, Opacity = 0.4 };
@@ -481,27 +332,7 @@ namespace ClassTemplatesWorld
                     uIClass.leftStaticMethRichTextBox = new RichTextBox { Name = "leftStaticMethRichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(-430, -50, 430, -348), Visibility = Visibility.Collapsed };
                     uIClass.leftStaticMethRichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.leftStaticMethRichTextBox.GotFocus += ChildrenGotFocus;
-                    uIClass.leftStaticMethRichTextBox.LostFocus += LostFocusClassSaving;
-                    uIClass.leftStaticMethRichTextBox.LostFocus += DeleteAllRichTextBoxTextLostFocus;
-                    if (dt.leftStaticMethParagraphInlinesCount.Count > 0)
-                    {
-                        int leftStaticMethInlinesCount = 0;
-                        FlowDocument leftStaticMethflowDocument = new FlowDocument();
-                        uIClass.leftStaticMethRichTextBox.Document = leftStaticMethflowDocument;
-                        foreach (int count in dt.leftStaticMethParagraphInlinesCount)
-                        {
-                            Paragraph leftStaticMethParagraph = new Paragraph();
-                            for (int i = 0; i < count; i++) // Создание первого параграфа
-                            {
-                                Run run = new Run { Text = dt.leftStaticMethInlineText[leftStaticMethInlinesCount], FontSize = dt.leftStaticMethInlineTextFontSize[leftStaticMethInlinesCount], Foreground = new SolidColorBrush(dt.leftStaticMethInlineTextColor[leftStaticMethInlinesCount]) };
-                                if (dt.leftStaticMethInlineTextFontWeight[leftStaticMethInlinesCount]) { run.FontWeight = FontWeights.Bold; }
-                                leftStaticMethParagraph.Inlines.Add(run);
-                                leftStaticMethInlinesCount++;
-                            }
-                            leftStaticMethflowDocument.Blocks.Add(leftStaticMethParagraph);
-                        }
-                        leftStaticMethInlinesCount = 0;
-                    }
+                    uIClass.leftStaticMethRichTextBox.LostFocus += SaveRichTextBoxLostFocus;
 
                     // Adding elements to classGrid
                     uIClass.classGrid.Children.Add(uIClass.classBorderWhite);
@@ -539,10 +370,20 @@ namespace ClassTemplatesWorld
                     Canvas.SetLeft(uIClass.classGrid, dt.canvasPointClass.X);
                     Canvas.SetTop(uIClass.classGrid, dt.canvasPointClass.Y);
 
-                    string[] allClasses = Directory.GetFiles(currentProgramDirectory + "Projects\\" + currentProjectName + "\\"); // Список всех классов в папке Classes
+                    List<string> allClasses = new List<string>(); // Список всех путей ко всем классом текущего проекта
+                    List<string> allDirectories = Directory.GetDirectories(currentProgramDirectory + "Projects\\" + currentProjectName + "\\").ToList();
+                    foreach(string s in allDirectories)
+                    {
+                        string[] files = Directory.GetFiles(s);
+                        foreach(string f in files)
+                        {
+                            if (!f.Contains("RichTextBox") ) { allClasses.Add(f); }
+                        }
+                    }
+
                     foreach (string s in allClasses) // Загрузка положения родителя на холсте, чтобы нарисовать линию от дочернего класса
                     {
-                        if (s == currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + dt.parentClassNameForThis + ".json") // Находится файл с именем родительского класса
+                        if (s == currentProgramDirectory + "Projects\\" + currentProjectName + "\\"  + dt.parentClassNameForThis + "\\" + dt.parentClassNameForThis + ".json") // Находится файл с именем родительского класса
                         {
                             using (FileStream fs = new FileStream(s, FileMode.Open))
                             {
@@ -565,23 +406,15 @@ namespace ClassTemplatesWorld
             }           
         }
 
-        // Дополнительный метод при потере фокуса RichTextBox-ами. Удаляет их содержимое (естественно, уже после того, как оно было сохранено в файл), а так же закрывает (Collapsed) их
-        private void DeleteAllRichTextBoxTextLostFocus(object sender, RoutedEventArgs e)
-        {
-            //RichTextBox richTextBox = sender as RichTextBox;
-            //richTextBox.Document.Blocks.Clear();
-            //richTextBox.Visibility = Visibility.Collapsed;
-        }
-
         // Удаление класса по его имени
         private void DeleteClass(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + NewClassNameTextBox.Text + ".json"))
+            if (File.Exists(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + NewClassNameTextBox.Text + "\\" + NewClassNameTextBox.Text + ".json"))
             {
                 if (MessageBox.Show("Are you sure you want to delete this class?", "Deleting the class", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
                     int a = 0;
-                    File.Delete(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + NewClassNameTextBox.Text + ".json");
+                    Directory.Delete(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + NewClassNameTextBox.Text, true);
                     Grid[] grids = bigCanvas.Children.OfType<Grid>().ToArray();
                     foreach (Grid g in grids)
                     {
@@ -618,7 +451,7 @@ namespace ClassTemplatesWorld
             }
             try
             {
-                using (FileStream fs2 = new FileStream(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + grid.Name + ".json", FileMode.Open)) // Проверяет, был -ли у вызывающего этот метод класса родитель, записанный в свойстве parentClassNameForThis
+                using (FileStream fs2 = new FileStream(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + grid.Name + "\\" + grid.Name + ".json", FileMode.Open)) // Проверяет, был -ли у вызывающего этот метод класса родитель, записанный в свойстве parentClassNameForThis
                 {
                     DataContractJsonSerializer jsonSerializer2 = new DataContractJsonSerializer(typeof(DataClass));
                     DataClass YesOrNoParent = (DataClass)jsonSerializer2.ReadObject(fs2);
@@ -627,14 +460,13 @@ namespace ClassTemplatesWorld
             }
             catch (Exception) { }
 
-            using (FileStream fs = new FileStream(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + grid.Name + ".json", FileMode.Create))
+            using (FileStream fs = new FileStream(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + grid.Name + "\\" + grid.Name + ".json", FileMode.Create))
             {
                 rtb = sender as RichTextBox;
                 DataClass dataClassSaving = new DataClass();
                 TextBox[] textBoxes = grid.Children.OfType<TextBox>().ToArray();
                 TextBlock[] textBlocks = grid.Children.OfType<TextBlock>().ToArray();
                 CheckBox[] checkBoxes = grid.Children.OfType<CheckBox>().ToArray();
-                RichTextBox[] richTextBoxes = grid.Children.OfType<RichTextBox>().ToArray();
 
                 dataClassSaving.canvasPointClass = currentCanvasPointClass; // установка положения класса (его Grid) на холсте. Для нового класса это (0, 0), для уже созданного и перемещенного - его последнее положение
                 dataClassSaving.parentClassNameForThis = nameOfParent;
@@ -670,184 +502,6 @@ namespace ClassTemplatesWorld
                         case "leftStaticMethDataClassCheckBox": dataClassSaving.leftStaticMethDataClassCheckBox = b; break;
                     }
                 }
-                foreach (RichTextBox rtb in richTextBoxes) // Запись всех Inline-ов всех RichTextBox-ов класса в соответствующие им листы DataClass
-                {
-                    int inlinesCount = 0;
-                    switch (rtb.Name)
-                    {
-                        case "rightARichTextBox":
-                            for (int a = 0; a < rtb.Document.Blocks.Count; a++)
-                            {
-                                Paragraph paragraph1 = rtb.Document.Blocks.ToArray()[a] as Paragraph; // Получение всех Inline-ов (они храняться в Paragraph-е) выделенного RichTextBox-а                                
-                                if (paragraph1 != null)
-                                {
-                                    foreach (Inline i in paragraph1.Inlines)
-                                    {
-                                        dataClassSaving.rightAInlineTextFontWeight.Add((i.FontWeight.ToString() == "Bold")); // Запись типа текста (жирный/не жирный) в Inline-е
-                                        dataClassSaving.rightAInlineText.Add(new TextRange(i.ContentStart, i.ContentEnd).Text); // Запись самого текста Inline-а
-                                        dataClassSaving.rightAInlineTextFontSize.Add((int)i.FontSize); // Запись размера шрифта текста в Inline-е
-                                        dataClassSaving.rightAInlineTextColor.Add((i.Foreground as SolidColorBrush).Color); // Запись размера шрифта текста в Inline-е
-                                        inlinesCount++; // Кол-во Inline-ов в каждом параграфе
-                                    }
-                                }
-                                dataClassSaving.rightAParagraphInlinesCount.Add(inlinesCount);
-                                inlinesCount = 0;
-                            }
-                            break;
-                        case "rightStaticARichTextBox":
-                            for (int a = 0; a < rtb.Document.Blocks.Count; a++)
-                            {
-                                Paragraph paragraph2 = rtb.Document.Blocks.ToArray()[a] as Paragraph; // Получение всех Inline-ов (они храняться в Paragraph-е) выделенного RichTextBox-а
-                                if (paragraph2 != null)
-                                {
-                                    foreach (Inline i in paragraph2.Inlines)
-                                    {
-                                        dataClassSaving.rightStaticAInlineTextFontWeight.Add((i.FontWeight.ToString() == "Bold")); // Запись типа текста (жирный/не жирный) в Inline-е
-                                        dataClassSaving.rightStaticAInlineText.Add(new TextRange(i.ContentStart, i.ContentEnd).Text); // Запись самого текста Inline-а
-                                        dataClassSaving.rightStaticAInlineTextFontSize.Add((int)i.FontSize); // Запись размера шрифта текста в Inline-е
-                                        dataClassSaving.rightStaticAInlineTextColor.Add((i.Foreground as SolidColorBrush).Color); // Запись размера шрифта текста в Inline-е
-                                        inlinesCount++;
-                                    }
-                                }
-                                dataClassSaving.rightStaticAParagraphInlinesCount.Add(inlinesCount);
-                                inlinesCount = 0;
-                            }  
-                            break;
-                        case "rightConstrRichTextBox":
-                            for (int a = 0; a < rtb.Document.Blocks.Count; a++)
-                            {
-                                Paragraph paragraph3 = rtb.Document.Blocks.ToArray()[a] as Paragraph; // Получение всех Inline-ов (они храняться в Paragraph-е) выделенного RichTextBox-а
-                                if (paragraph3 != null)
-                                {
-                                    foreach (Inline i in paragraph3.Inlines)
-                                    {
-                                        dataClassSaving.rightConstrInlineTextFontWeight.Add((i.FontWeight.ToString() == "Bold")); // Запись типа текста (жирный/не жирный) в Inline-е
-                                        dataClassSaving.rightConstrInlineText.Add(new TextRange(i.ContentStart, i.ContentEnd).Text); // Запись самого текста Inline-а
-                                        dataClassSaving.rightConstrInlineTextFontSize.Add((int)i.FontSize); // Запись размера шрифта текста в Inline-е
-                                        dataClassSaving.rightConstrInlineTextColor.Add((i.Foreground as SolidColorBrush).Color); // Запись размера шрифта текста в Inline-е
-                                        inlinesCount++;
-                                    }
-                                }
-                                dataClassSaving.rightConstrParagraphInlinesCount.Add(inlinesCount);
-                                inlinesCount = 0;
-                            }
-                            break;
-                        case "rightMethRichTextBox":
-                            for (int a = 0; a < rtb.Document.Blocks.Count; a++)
-                            {
-                                Paragraph paragraph4 = rtb.Document.Blocks.ToArray()[a] as Paragraph; // Получение всех Inline-ов (они храняться в Paragraph-е) выделенного RichTextBox-а
-                                if (paragraph4 != null)
-                                {
-                                    foreach (Inline i in paragraph4.Inlines)
-                                    {
-                                        dataClassSaving.rightMethInlineTextFontWeight.Add((i.FontWeight.ToString() == "Bold")); // Запись типа текста (жирный/не жирный) в Inline-е
-                                        dataClassSaving.rightMethInlineText.Add(new TextRange(i.ContentStart, i.ContentEnd).Text); // Запись самого текста Inline-а
-                                        dataClassSaving.rightMethInlineTextFontSize.Add((int)i.FontSize); // Запись размера шрифта текста в Inline-е
-                                        dataClassSaving.rightMethInlineTextColor.Add((i.Foreground as SolidColorBrush).Color); // Запись размера шрифта текста в Inline-е
-                                        inlinesCount++;
-                                    }
-                                }
-                                dataClassSaving.rightMethParagraphInlinesCount.Add(inlinesCount);
-                                inlinesCount = 0;
-                            }
-                            break;
-                        case "rightStaticMethRichTextBox":
-                            for (int a = 0; a < rtb.Document.Blocks.Count; a++)
-                            {
-                                Paragraph paragraph5 = rtb.Document.Blocks.ToArray()[a] as Paragraph; // Получение всех Inline-ов (они храняться в Paragraph-е) выделенного RichTextBox-а
-                                if (paragraph5 != null)
-                                {
-                                    foreach (Inline i in paragraph5.Inlines)
-                                    {
-                                        dataClassSaving.rightStaticMethInlineTextFontWeight.Add((i.FontWeight.ToString() == "Bold")); // Запись типа текста (жирный/не жирный) в Inline-е
-                                        dataClassSaving.rightStaticMethInlineText.Add(new TextRange(i.ContentStart, i.ContentEnd).Text); // Запись самого текста Inline-а
-                                        dataClassSaving.rightStaticMethInlineTextFontSize.Add((int)i.FontSize); // Запись размера шрифта текста в Inline-е
-                                        dataClassSaving.rightStaticMethInlineTextColor.Add((i.Foreground as SolidColorBrush).Color); // Запись размера шрифта текста в Inline-е
-                                        inlinesCount++;
-                                    }
-                                }
-                                dataClassSaving.rightStaticMethParagraphInlinesCount.Add(inlinesCount);
-                                inlinesCount = 0;
-                            }
-                            break;
-                        case "rightMessageRichTextBox":
-                            for (int a = 0; a < rtb.Document.Blocks.Count; a++)
-                            {
-                                Paragraph paragraph6 = rtb.Document.Blocks.ToArray()[a] as Paragraph; // Получение всех Inline-ов (они храняться в Paragraph-е) выделенного RichTextBox-а
-                                if (paragraph6 != null)
-                                {
-                                    foreach (Inline i in paragraph6.Inlines)
-                                    {
-                                        dataClassSaving.rightMessageInlineTextFontWeight.Add((i.FontWeight.ToString() == "Bold")); // Запись типа текста (жирный/не жирный) в Inline-е
-                                        dataClassSaving.rightMessageInlineText.Add(new TextRange(i.ContentStart, i.ContentEnd).Text); // Запись самого текста Inline-а
-                                        dataClassSaving.rightMessageInlineTextFontSize.Add((int)i.FontSize); // Запись размера шрифта текста в Inline-е
-                                        dataClassSaving.rightMessageInlineTextColor.Add((i.Foreground as SolidColorBrush).Color); // Запись размера шрифта текста в Inline-е
-                                        inlinesCount++;
-                                    }
-                                }
-                                dataClassSaving.rightMessageParagraphInlinesCount.Add(inlinesCount);
-                                inlinesCount = 0;
-                            }
-                            break;
-                        case "leftARichTextBox":
-                            for (int a = 0; a < rtb.Document.Blocks.Count; a++)
-                            {
-                                Paragraph paragraph7 = rtb.Document.Blocks.ToArray()[a] as Paragraph; // Получение всех Inline-ов (они храняться в Paragraph-е) выделенного RichTextBox-а
-                                if (paragraph7 != null)
-                                {
-                                    foreach (Inline i in paragraph7.Inlines)
-                                    {
-                                        dataClassSaving.leftAInlineTextFontWeight.Add((i.FontWeight.ToString() == "Bold")); // Запись типа текста (жирный/не жирный) в Inline-е
-                                        dataClassSaving.leftAInlineText.Add(new TextRange(i.ContentStart, i.ContentEnd).Text); // Запись самого текста Inline-а
-                                        dataClassSaving.leftAInlineTextFontSize.Add((int)i.FontSize); // Запись размера шрифта текста в Inline-е
-                                        dataClassSaving.leftAInlineTextColor.Add((i.Foreground as SolidColorBrush).Color); // Запись размера шрифта текста в Inline-е
-                                        inlinesCount++;
-                                    }
-                                }
-                                dataClassSaving.leftAParagraphInlinesCount.Add(inlinesCount);
-                                inlinesCount = 0;
-                            }
-                            break;
-                        case "leftMethRichTextBox":
-                            for (int a = 0; a < rtb.Document.Blocks.Count; a++)
-                            {
-                                Paragraph paragraph8 = rtb.Document.Blocks.ToArray()[a] as Paragraph; // Получение всех Inline-ов (они храняться в Paragraph-е) выделенного RichTextBox-а
-                                if (paragraph8 != null)
-                                {
-                                    foreach (Inline i in paragraph8.Inlines)
-                                    {
-                                        dataClassSaving.leftMethInlineTextFontWeight.Add((i.FontWeight.ToString() == "Bold")); // Запись типа текста (жирный/не жирный) в Inline-е
-                                        dataClassSaving.leftMethInlineText.Add(new TextRange(i.ContentStart, i.ContentEnd).Text); // Запись самого текста Inline-а
-                                        dataClassSaving.leftMethInlineTextFontSize.Add((int)i.FontSize); // Запись размера шрифта текста в Inline-е
-                                        dataClassSaving.leftMethInlineTextColor.Add((i.Foreground as SolidColorBrush).Color); // Запись размера шрифта текста в Inline-е
-                                        inlinesCount++;
-                                    }
-                                }
-                                dataClassSaving.leftMethParagraphInlinesCount.Add(inlinesCount);
-                                inlinesCount = 0;
-                            }
-                            break;
-                        case "leftStaticMethRichTextBox":
-                            for (int a = 0; a < rtb.Document.Blocks.Count; a++)
-                            {
-                                Paragraph paragraph9 = rtb.Document.Blocks.ToArray()[a] as Paragraph; // Получение всех Inline-ов (они храняться в Paragraph-е) выделенного RichTextBox-а
-                                if (paragraph9 != null)
-                                {
-                                    foreach (Inline i in paragraph9.Inlines)
-                                    {
-                                        dataClassSaving.leftStaticMethInlineTextFontWeight.Add((i.FontWeight.ToString() == "Bold")); // Запись типа текста (жирный/не жирный) в Inline-е
-                                        dataClassSaving.leftStaticMethInlineText.Add(new TextRange(i.ContentStart, i.ContentEnd).Text); // Запись самого текста Inline-а
-                                        dataClassSaving.leftStaticMethInlineTextFontSize.Add((int)i.FontSize); // Запись размера шрифта текста в Inline-е
-                                        dataClassSaving.leftStaticMethInlineTextColor.Add((i.Foreground as SolidColorBrush).Color); // Запись размера шрифта текста в Inline-е
-                                        inlinesCount++;
-                                    }
-                                }
-                                dataClassSaving.leftStaticMethParagraphInlinesCount.Add(inlinesCount);
-                                inlinesCount = 0;
-                            }
-                            break;
-                    }
-                }
                 DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(DataClass));
                 jsonSerializer.WriteObject(fs, dataClassSaving);
                 nameOfParent = null;
@@ -859,6 +513,41 @@ namespace ClassTemplatesWorld
         {
             currentClassName = ((sender as FrameworkElement).Parent as Grid).Name; // в эту переменную записывается текущее имя выделенного класса
             currentCanvasPointClass = new Point((double)((sender as FrameworkElement).Parent as Grid).GetValue(Canvas.LeftProperty), (double)((sender as FrameworkElement).Parent as Grid).GetValue(Canvas.TopProperty));
+        }
+
+        // При потере фокуса любым RichTextBox-ом, сохраняет его текст (параграфы) в отдельный файл с именеме этого RichTextBox-а в папку с классом, к которому принадлежит этот RichTextBox. Так же удаляет весь этот текст у WPF элемента RichTextBox (этот текст снова будет появляться при открытии данного RichTextBox-а по нажатию на соотв. Button)
+        private void SaveRichTextBoxLostFocus(object sender, RoutedEventArgs e)
+        {
+            rtb = sender as RichTextBox;
+            RichTextBoxDataClass richTextBoxDataClass = new RichTextBoxDataClass();
+            RichTextBox richTextBox = sender as RichTextBox;
+            if (!(Directory.Exists(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + ((sender as RichTextBox).Parent as Grid).Name)))
+            {
+                Directory.CreateDirectory(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + ((sender as RichTextBox).Parent as Grid).Name);
+            }
+            using (FileStream fs = new FileStream(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + ((sender as RichTextBox).Parent as Grid).Name + "\\" + richTextBox.Name + ".json", FileMode.Create))
+            {
+                int inlinesCount = 0;
+                for (int a = 0; a < richTextBox.Document.Blocks.Count; a++)
+                {
+                    Paragraph paragraph = richTextBox.Document.Blocks.ToArray()[a] as Paragraph; // Получение всех Inline-ов (они храняться в Paragraph-е) выделенного RichTextBox-а                                
+                    if (paragraph != null)
+                    {
+                        foreach (Inline i in paragraph.Inlines)
+                        {
+                            richTextBoxDataClass.inlineTextFontWeight.Add((i.FontWeight.ToString() == "Bold")); // Запись типа текста (жирный/не жирный) в Inline-е
+                            richTextBoxDataClass.inlineText.Add(new TextRange(i.ContentStart, i.ContentEnd).Text); // Запись самого текста Inline-а
+                            richTextBoxDataClass.inlineTextFontSize.Add((int)i.FontSize); // Запись размера шрифта текста в Inline-е
+                            richTextBoxDataClass.inlineTextColor.Add((i.Foreground as SolidColorBrush).Color); // Запись размера шрифта текста в Inline-е
+                            inlinesCount++; // Кол-во Inline-ов в каждом параграфе
+                        }
+                    }
+                    richTextBoxDataClass.paragraphInlinesCount.Add(inlinesCount);
+                    inlinesCount = 0;
+                }
+                DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(RichTextBoxDataClass));
+                jsonSerializer.WriteObject(fs, richTextBoxDataClass);
+            }
         }
 
         //
@@ -873,16 +562,78 @@ namespace ClassTemplatesWorld
                 { t.Visibility = Visibility.Collapsed; break; }
             }
         }
-        private void OpenHideRichTextBoxesMethod(object sender, RoutedEventArgs e) // Makes RichTextBoxes Visible/Collapsed
+        private void OpenHideRichTextBoxesMethod(object sender, RoutedEventArgs e) // Открывает и закрывает указанный (соответствующий нажатой кнопки) RichTextBox и загружает в него весь текст из файла с таким же именем, как и у этого RichTextBox-а, а так же сохраняет весь текст в файл
         {
-            string buttonName = (sender as Button).Name + "RichTextBox";
+            string richTextBoxName = (sender as Button).Name + "RichTextBox";
+            RichTextBoxDataClass richTextBoxDataClassLoad = new RichTextBoxDataClass();
             RichTextBox[] richTextBoxes = ((sender as Button).Parent as Grid).Children.OfType<RichTextBox>().ToArray();
             foreach (RichTextBox r in richTextBoxes)
             {
-                if (r.Name == buttonName && r.Visibility == Visibility.Collapsed) { r.Visibility = Visibility.Visible; }
-                else if (r.Name == buttonName && r.Visibility == Visibility.Visible) { r.Visibility = Visibility.Collapsed; }
+                if (r.Name == richTextBoxName && r.Visibility == Visibility.Collapsed) // Загружает весь текст в RichTextBox
+                { 
+                    r.Visibility = Visibility.Visible;
+                    if(File.Exists(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + ((sender as Button).Parent as Grid).Name + "\\" + richTextBoxName + ".json"))
+                    {
+                        using (FileStream fs = new FileStream(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + ((sender as Button).Parent as Grid).Name + "\\" + richTextBoxName + ".json", FileMode.Open))
+                        {
+                            DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(RichTextBoxDataClass));
+                            richTextBoxDataClassLoad = (RichTextBoxDataClass)jsonSerializer.ReadObject(fs);
+                        }
+                        if (richTextBoxDataClassLoad.paragraphInlinesCount.Count > 0)
+                        {
+                            int inlinesCount = 0;
+                            FlowDocument flowDocument = new FlowDocument();
+                            r.Document = flowDocument;
+                            foreach (int count in richTextBoxDataClassLoad.paragraphInlinesCount)
+                            {
+                                Paragraph paragraph = new Paragraph();
+                                for (int i = 0; i < count; i++) // Создание параграфов
+                                {
+                                    Run run = new Run { Text = richTextBoxDataClassLoad.inlineText[inlinesCount], FontSize = richTextBoxDataClassLoad.inlineTextFontSize[inlinesCount], Foreground = new SolidColorBrush(richTextBoxDataClassLoad.inlineTextColor[inlinesCount]) };
+                                    if (richTextBoxDataClassLoad.inlineTextFontWeight[inlinesCount]) { run.FontWeight = FontWeights.Bold; }
+                                    paragraph.Inlines.Add(run);
+                                    inlinesCount++;
+                                }
+                                flowDocument.Blocks.Add(paragraph);
+                            }
+                            inlinesCount = 0;
+                        }
+                    }
+                }
+                else if (r.Name == richTextBoxName && r.Visibility == Visibility.Visible) // Сохраняет весь текст из RichTextBox-а
+                {
+                    RichTextBoxDataClass richTextBoxDataClassSave = new RichTextBoxDataClass();
+                    if (!(Directory.Exists(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + ((sender as Button).Parent as Grid).Name)))
+                    {
+                        Directory.CreateDirectory(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + ((sender as Button).Parent as Grid).Name);
+                    }
+                    using (FileStream fs = new FileStream(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + ((sender as Button).Parent as Grid).Name + "\\" + r.Name + ".json", FileMode.Create))
+                    {
+                        int inlinesCount = 0;
+                        for (int a = 0; a < r.Document.Blocks.Count; a++)
+                        {
+                            Paragraph paragraph = r.Document.Blocks.ToArray()[a] as Paragraph; // Получение всех Inline-ов (они храняться в Paragraph-е) выделенного RichTextBox-а                                
+                            if (paragraph != null)
+                            {
+                                foreach (Inline i in paragraph.Inlines)
+                                {
+                                    richTextBoxDataClassSave.inlineTextFontWeight.Add((i.FontWeight.ToString() == "Bold")); // Запись типа текста (жирный/не жирный) в Inline-е
+                                    richTextBoxDataClassSave.inlineText.Add(new TextRange(i.ContentStart, i.ContentEnd).Text); // Запись самого текста Inline-а
+                                    richTextBoxDataClassSave.inlineTextFontSize.Add((int)i.FontSize); // Запись размера шрифта текста в Inline-е
+                                    richTextBoxDataClassSave.inlineTextColor.Add((i.Foreground as SolidColorBrush).Color); // Запись размера шрифта текста в Inline-е
+                                    inlinesCount++; // Кол-во Inline-ов в каждом параграфе
+                                }
+                            }
+                            richTextBoxDataClassSave.paragraphInlinesCount.Add(inlinesCount);
+                            inlinesCount = 0;
+                        }
+                        DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(RichTextBoxDataClass));
+                        jsonSerializer.WriteObject(fs, richTextBoxDataClassSave);
+                    }
+                    r.Visibility = Visibility.Collapsed;
+                    r.Document.Blocks.Clear();
+                }
             }
-
         }
         private void OpenHideButtonsMethod(object sender, RoutedEventArgs e) // Makes Buttons Visible/Collapsed
         {
@@ -920,7 +671,8 @@ namespace ClassTemplatesWorld
                     Border[] borders = TakeClassGrid.Children.OfType<Border>().ToArray();
                     foreach (Border b in borders) { if (b.Name == "OwterGlow") { TakeClassGrid.Children.Remove(b); } }
                 }
-                TakeClassGrid.Children.Add(new Border { Name = "OwterGlow", Width = 400, Height = 109, VerticalAlignment = VerticalAlignment.Center, BorderBrush = new SolidColorBrush(Color.FromRgb(255, 150, 0)), BorderThickness = new Thickness(3) });
+                Border border = new Border { Name = "OwterGlow", Width = 400, Height = 109, VerticalAlignment = VerticalAlignment.Center, BorderBrush = new SolidColorBrush(Color.FromRgb(255, 150, 0)), BorderThickness = new Thickness(3) };
+                TakeClassGrid.Children.Insert(0, border);
                 currentClassName = TakeClassGrid.Name;
                 GetMouseClass = true;
                 Mouse.Capture(TakeClassGrid);
@@ -941,17 +693,28 @@ namespace ClassTemplatesWorld
                 mousePosClassCanvasOld.Y = mousePosClassCanvasNew.Y;
 
                 DataClass ExampleClass = new DataClass();
-                string[] allClasses = Directory.GetFiles(currentProgramDirectory + "Projects\\" + currentProjectName + "\\");
+
+                List<string> allClasses = new List<string>(); // Список всех путей ко всем классом текущего проекта
+                List<string> allDirectories = Directory.GetDirectories(currentProgramDirectory + "Projects\\" + currentProjectName + "\\").ToList();
+                foreach (string s in allDirectories)
+                {
+                    string[] files = Directory.GetFiles(s);
+                    foreach (string f in files)
+                    {
+                        if (!f.Contains("RichTextBox")) { allClasses.Add(f); }
+                    }
+                }
+
                 foreach (string s in allClasses)
                 {
-                    if (s == currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + TakeClassGrid.Name + ".json") // Находится файл с именем перемещаемого класса
+                    if (s == currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + TakeClassGrid.Name + "\\" + TakeClassGrid.Name + ".json") // Находится файл с именем перемещаемого класса
                     {
                         using (FileStream fs = new FileStream(s, FileMode.Open))
                         {
                             DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(DataClass));
                             try
                             {
-                                ExampleClass = (DataClass)jsonSerializer.ReadObject(fs); // Загружается файл перемещаемого класса в переменную movingClass
+                                ExampleClass = (DataClass)jsonSerializer.ReadObject(fs); // Загружается файл перемещаемого класса в переменную ExampleClass
                             }
                             catch (Exception)
                             {
@@ -964,7 +727,7 @@ namespace ClassTemplatesWorld
                 {
                     foreach (string s in allClasses) // Тогда найти этого родителя, а у него найти его координаты
                     {
-                        if (s == currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + ExampleClass.parentClassNameForThis + ".json")
+                        if (s == currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + ExampleClass.parentClassNameForThis + "\\" + ExampleClass.parentClassNameForThis + ".json")
                         {
                             using (FileStream fs = new FileStream(s, FileMode.Open))
                             {
@@ -1012,15 +775,15 @@ namespace ClassTemplatesWorld
                 // Нижеследующий код можно удалить, если программа будет сильно лагать при перемещении классов по канвасу _____________________________________________________________________________________________
                 //
                 //
-                //bigCanvas.Children.Clear();
-                //allClassesList = new ObservableCollection<string>();
-                //allClassesListBox.ItemsSource = allClassesList2;
-                //LoadAllClasses();
-                //Grid[] grids = bigCanvas.Children.OfType<Grid>().ToArray();
-                //foreach (Grid g in grids)
-                //{
-                //    if (g.Name == TakeClassGrid.Name) { g.Children.Add(new Border { Name = "OwterGlow", Width = 400, Height = 109, VerticalAlignment = VerticalAlignment.Center, BorderBrush = new SolidColorBrush(Color.FromRgb(255, 150, 0)), BorderThickness = new Thickness(3) }); }
-                //}
+                bigCanvas.Children.Clear();
+                allClassesList = new ObservableCollection<string>();
+                allClassesListBox.ItemsSource = allClassesList2;
+                LoadAllClasses();
+                Grid[] grids = bigCanvas.Children.OfType<Grid>().ToArray();
+                foreach (Grid g in grids)
+                {
+                    if (g.Name == TakeClassGrid.Name) { g.Children.Insert(0, new Border { Name = "OwterGlow", Width = 400, Height = 109, VerticalAlignment = VerticalAlignment.Center, BorderBrush = new SolidColorBrush(Color.FromRgb(255, 150, 0)), BorderThickness = new Thickness(3) }); TakeClassGrid = g; }
+                }
                 //_____________________________________________________________________________________________________________________________________________________________________________________________________
                 //
                 //
@@ -1038,7 +801,7 @@ namespace ClassTemplatesWorld
                 if (TakeClassGrid != null) // Здесь происходит удаление подсветки выбранного класса
                 {
                     Border[] borders = TakeClassGrid.Children.OfType<Border>().ToArray();
-                    foreach (Border b in borders) { if (b.Name == "OwterGlow") { TakeClassGrid.Children.Remove(b); } }
+                    foreach (Border b in borders) { if (b.Name == "OwterGlow") { TakeClassGrid.Children.RemoveAt(0); } }
                 }
                 GetMouseCanvas = true;
                 mousePosCanvasOld = e.GetPosition(W1);
@@ -1076,7 +839,7 @@ namespace ClassTemplatesWorld
                 System.Windows.Forms.ColorDialog colorDialog = new System.Windows.Forms.ColorDialog();
                 colorDialog.ShowDialog();
                 rtb.Selection.ApplyPropertyValue(ForegroundProperty, new SolidColorBrush(Color.FromRgb(colorDialog.Color.R, colorDialog.Color.G, colorDialog.Color.B)));
-                LostFocusClassSaving(rtb, e);
+                SaveRichTextBoxLostFocus(rtb, e);
                 rtb = null;
             }
         }
@@ -1097,6 +860,7 @@ namespace ClassTemplatesWorld
                     int a = Convert.ToInt32(rtb.Selection.GetPropertyValue(TextElement.FontSizeProperty));
                     rtb.Selection.ApplyPropertyValue(FontSizeProperty, (--a).ToString());
                 }
+                SaveRichTextBoxLostFocus(rtb, e);
             }
         }
 
@@ -1153,13 +917,13 @@ namespace ClassTemplatesWorld
             if (SecondClassGrid != null)
             {
                 DataClass deleteConnectionParent = new DataClass();
-                using (FileStream fs = new FileStream(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + SecondClassGrid.Name + ".json", FileMode.Open))
+                using (FileStream fs = new FileStream(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + SecondClassGrid.Name + "\\" + SecondClassGrid.Name + ".json", FileMode.Open))
                 {
                     DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(DataClass));
                     deleteConnectionParent = (DataClass)jsonSerializer.ReadObject(fs); // Загружается файл дочернего класса, чтобы удалить наследование
                     deleteConnectionParent.parentClassNameForThis = null;
                 }
-                using (FileStream fs2 = new FileStream(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + SecondClassGrid.Name + ".json", FileMode.Create))
+                using (FileStream fs2 = new FileStream(currentProgramDirectory + "Projects\\" + currentProjectName + "\\" + SecondClassGrid.Name + "\\" + SecondClassGrid.Name + ".json", FileMode.Create))
                 {
                     DataContractJsonSerializer jsonSerializer2 = new DataContractJsonSerializer(typeof(DataClass));
                     jsonSerializer2.WriteObject(fs2, deleteConnectionParent);
@@ -1180,9 +944,10 @@ namespace ClassTemplatesWorld
 
         // Команда открытия littleCanvas
         private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            if (bigCanvas.Visibility == Visibility.Visible) // Если bigCanvas открыт, то закроет его, а на его месте откроет создаст и откроет littleCanvas, на который загрузи в миниатюре все что было в bigCanvas (в том числе и положение скрола (ScrollViewer1))
+        {            
+            if (bigCanvas.Visibility == Visibility.Visible) // Если bigCanvas открыт, то закроет его, а на его месте создаст и откроет littleCanvas, на который загрузит в миниатюре все что было в bigCanvas (в том числе и положение скрола (ScrollViewer1))
             {
+                if (TakeClassGrid != null) { TakeClassGrid.Children.RemoveAt(0); }
                 Canvas littleCanvas = new Canvas { Name = "littleCanvas", Background = new SolidColorBrush(Color.FromRgb(178, 178, 178)), Width = bigCanvas.Width, Height = bigCanvas.Height };
                 littleCanvas.Visibility = Visibility.Visible;
                 bigCanvas.Visibility = Visibility.Collapsed;
@@ -1319,7 +1084,7 @@ namespace ClassTemplatesWorld
             if (LoadAllProjectsList.SelectedItem != null)
             {
                 currentProjectName = LoadAllProjectsList.SelectedItem.ToString();
-                using (FileStream fs = new FileStream(currentProgramDirectory + "CurrentProjectName" + ".json", FileMode.Create))
+                using (FileStream fs = new FileStream(currentProgramDirectory + "CurrentProjectName.json", FileMode.Create))
                 {
                     DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(string));
                     jsonSerializer.WriteObject(fs, currentProjectName);
