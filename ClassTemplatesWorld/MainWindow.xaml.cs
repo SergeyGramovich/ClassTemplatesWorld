@@ -805,6 +805,7 @@ namespace ClassTemplatesWorld
                 {
                     Border[] borders = TakeClassGrid.Children.OfType<Border>().ToArray();
                     foreach (Border b in borders) { if (b.Name == "OwterGlow") { TakeClassGrid.Children.RemoveAt(0); } }
+                    TakeClassGrid = null;
                 }
                 GetMouseCanvas = true;
                 mousePosCanvasOld = e.GetPosition(W1);
