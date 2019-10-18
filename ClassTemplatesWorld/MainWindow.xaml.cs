@@ -856,13 +856,21 @@ namespace ClassTemplatesWorld
                 if ((sender as Button).Name == "Apply") { rtb.Selection.ApplyPropertyValue(FontSizeProperty, FontSizeTextBox.Text); }
                 else if ((sender as Button).Name == "Plus")
                 {
-                    int a = Convert.ToInt32(rtb.Selection.GetPropertyValue(TextElement.FontSizeProperty));
-                    rtb.Selection.ApplyPropertyValue(FontSizeProperty, (++a).ToString());
+                    try
+                    {
+                        int a = Convert.ToInt32(rtb.Selection.GetPropertyValue(TextElement.FontSizeProperty));
+                        rtb.Selection.ApplyPropertyValue(FontSizeProperty, (++a).ToString());
+                    }
+                    catch (Exception) { }
                 }
                 else if ((sender as Button).Name == "Minus")
                 {
-                    int a = Convert.ToInt32(rtb.Selection.GetPropertyValue(TextElement.FontSizeProperty));
-                    rtb.Selection.ApplyPropertyValue(FontSizeProperty, (--a).ToString());
+                    try
+                    {
+                        int a = Convert.ToInt32(rtb.Selection.GetPropertyValue(TextElement.FontSizeProperty));
+                        rtb.Selection.ApplyPropertyValue(FontSizeProperty, (--a).ToString());
+                    }
+                    catch (Exception) { }
                 }
                 SaveRichTextBoxLostFocus(rtb, e);
             }
