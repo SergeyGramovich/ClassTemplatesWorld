@@ -1034,7 +1034,7 @@ namespace ClassTemplatesWorld
         private void CreateNewProjectButtonClick(object sender, RoutedEventArgs e) // Т.е. в каждом таком проекте может быть много классов файлов. При этом у разных проектов могут быть файлы классов с одинаковыми именами
         {
             NewProjectNameTextBox.Text = NewProjectNameTextBox.Text.Replace(" ", "");
-            if (NewProjectNameTextBox.Text == "Enter the name of a new project" || NewProjectNameTextBox.Text == "" || Regex.IsMatch(NewProjectNameTextBox.Text.ToCharArray()[0].ToString(), @"[^a-zA-Z0-9]")) { MessageBox.Show("Please, enter the name of a new project. It cannot contain spaces"); }
+            if (NewProjectNameTextBox.Text == "Enterthenameofanewproject" || NewProjectNameTextBox.Text == "" || Regex.IsMatch(NewProjectNameTextBox.Text.ToCharArray()[0].ToString(), @"[^a-zA-Z0-9]")) { MessageBox.Show("Please, enter the name of a new project. It cannot contain spaces"); }
             else
             {
                 string[] allProjectNames = Directory.GetDirectories(currentProgramDirectory + "Projects");
@@ -1058,6 +1058,7 @@ namespace ClassTemplatesWorld
                 CreateNewProjectGrid.Visibility = Visibility.Collapsed;
                 NewProjectNameTextBox.Text = "Enter the name of a new project";
             }
+            NewProjectNameTextBox.Text = "Enter the name of a new project";
         }
 
         // Отмена создания нового проекта шаблонов классов

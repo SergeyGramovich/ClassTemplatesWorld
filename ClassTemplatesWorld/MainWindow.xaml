@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ClassTemplatesWorld"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1080" Width="1920" FontSize="10" FontFamily="Tahoma" Name="W1" 
+        Title="Class Templates World" Height="1080" Width="1920" FontSize="10" FontFamily="Tahoma" Name="W1" 
         WindowStartupLocation="CenterScreen" WindowState="Maximized">
     <Window.Icon>
-        <BitmapImage UriSource="file:///C://Users//Opeth//source//repos//Unity_Class_Tree//Unity_Class_Tree//bin//Debug//Unity Class Tree Icon.ico"/>
+        <BitmapImage UriSource="file:///D://Programming//My Projects//Class Templates World//Class Templates World Icon.ico"/>
     </Window.Icon>
     <Window.CommandBindings>
         <CommandBinding Command="Help" Executed="CommandBinding_Executed"/>
@@ -121,7 +121,7 @@
 
         <TextBlock x:Name="ProjectName" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="24" Foreground="White" Opacity="0.5"
                    >NAME OF PROJECT</TextBlock>
-        <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="16" Foreground="White" Opacity="0.5"
-                   >press ALT+W to switch view</TextBlock>
+        <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,20,0" FontSize="16" Foreground="White" 
+                   Opacity="0.5">press ALT+W to switch view</TextBlock>
     </Grid>
 </Window>
