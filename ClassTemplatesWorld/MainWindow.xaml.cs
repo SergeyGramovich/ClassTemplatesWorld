@@ -176,7 +176,7 @@ namespace ClassTemplatesWorld
                     // 2 classTextboxes
                     uIClass.classNameTextBlock = new TextBlock { Name = "classNameTextBlock", Width = 296, FontSize = 19, VerticalAlignment = VerticalAlignment.Center, TextAlignment = TextAlignment.Center, Foreground = new SolidColorBrush(Color.FromRgb(43, 145, 175)), Margin = new Thickness(0, 0, 0, 22), Text = dt.className };
                     uIClass.classNameTextBlock.GotFocus += ChildrenGotFocus;
-                    uIClass.classDescriptionTextBox = new TextBox { Name = "classDescriptionTextBox", FontFamily = new FontFamily("Calibri"), Width = 296, Height = 140, FontSize = 12, VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(52, -140, 52, 110), Visibility = Visibility.Collapsed, Text = dt.classDescription, AcceptsReturn = true };
+                    uIClass.classDescriptionTextBox = new TextBox { Name = "classDescriptionTextBox", FontFamily = new FontFamily("Calibri"), Width = 296, Height = 140, FontSize = 12, VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(52, -140, 52, 110), Visibility = Visibility.Collapsed, Text = dt.classDescription, AcceptsReturn = true, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
                     uIClass.classDescriptionTextBox.GotFocus += ChildrenGotFocus;
                     uIClass.classDescriptionTextBox.LostFocus += LostFocusClassSaving;
 
@@ -194,7 +194,7 @@ namespace ClassTemplatesWorld
                     if (dt.rightADataClassCheckBox != true) { uIClass.rightAButton.Visibility = Visibility.Collapsed; }
                     uIClass.rightAButton.GotFocus += ChildrenGotFocus;
                     uIClass.rightAButton.Click += OpenHideRichTextBoxesMethod;
-                    uIClass.rightARichTextBox = new RichTextBox { Name = "rightARichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true,   VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -120, -430, -278), Visibility = Visibility.Collapsed, FontStyle = FontStyles.Normal };
+                    uIClass.rightARichTextBox = new RichTextBox { Name = "rightARichTextBox", Width = 600, Height = 500, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -120, -630, -518), Visibility = Visibility.Collapsed, FontStyle = FontStyles.Normal, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
                     uIClass.rightARichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.rightARichTextBox.GotFocus += ChildrenGotFocus;
                     uIClass.rightARichTextBox.LostFocus += SaveRichTextBoxLostFocus;
@@ -212,7 +212,7 @@ namespace ClassTemplatesWorld
                     if (dt.rightStaticADataClassCheckBox != true) { uIClass.rightStaticAButton.Visibility = Visibility.Collapsed; }
                     uIClass.rightStaticAButton.GotFocus += ChildrenGotFocus;
                     uIClass.rightStaticAButton.Click += OpenHideRichTextBoxesMethod;
-                    uIClass.rightStaticARichTextBox = new RichTextBox { Name = "rightStaticARichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -110, -430, -300), Visibility = Visibility.Collapsed };
+                    uIClass.rightStaticARichTextBox = new RichTextBox { Name = "rightStaticARichTextBox", Width = 600, Height = 500, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -110, -630, -540), Visibility = Visibility.Collapsed, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
                     uIClass.rightStaticARichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.rightStaticARichTextBox.GotFocus += ChildrenGotFocus;
                     uIClass.rightStaticARichTextBox.LostFocus += SaveRichTextBoxLostFocus;
@@ -228,7 +228,7 @@ namespace ClassTemplatesWorld
                     if (dt.rightConstrDataClassCheckBox != true) { uIClass.rightConstrButton.Visibility = Visibility.Collapsed; }
                     uIClass.rightConstrButton.GotFocus += ChildrenGotFocus;
                     uIClass.rightConstrButton.Click += OpenHideRichTextBoxesMethod;
-                    uIClass.rightConstrRichTextBox = new RichTextBox { Name = "rightConstrRichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -90, -430, -318), Visibility = Visibility.Collapsed };
+                    uIClass.rightConstrRichTextBox = new RichTextBox { Name = "rightConstrRichTextBox", Width = 600, Height = 500, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -90, -630, -558), Visibility = Visibility.Collapsed, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
                     uIClass.rightConstrRichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.rightConstrRichTextBox.GotFocus += ChildrenGotFocus;
                     uIClass.rightConstrRichTextBox.LostFocus += SaveRichTextBoxLostFocus;
@@ -244,7 +244,7 @@ namespace ClassTemplatesWorld
                     if (dt.rightMethDataClassCheckBox != true) { uIClass.rightMethButton.Visibility = Visibility.Collapsed; }
                     uIClass.rightMethButton.GotFocus += ChildrenGotFocus;
                     uIClass.rightMethButton.Click += OpenHideRichTextBoxesMethod;
-                    uIClass.rightMethRichTextBox = new RichTextBox { Name = "rightMethRichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -66, -430, -332), Visibility = Visibility.Collapsed };
+                    uIClass.rightMethRichTextBox = new RichTextBox { Name = "rightMethRichTextBox", Width = 600, Height = 500, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -66, -630, -572), Visibility = Visibility.Collapsed, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
                     uIClass.rightMethRichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.rightMethRichTextBox.GotFocus += ChildrenGotFocus;
                     uIClass.rightMethRichTextBox.LostFocus += SaveRichTextBoxLostFocus;
@@ -261,7 +261,7 @@ namespace ClassTemplatesWorld
                     if (dt.rightStaticMethDataClassCheckBox != true) { uIClass.rightStaticMethButton.Visibility = Visibility.Collapsed; }
                     uIClass.rightStaticMethButton.GotFocus += ChildrenGotFocus;
                     uIClass.rightStaticMethButton.Click += OpenHideRichTextBoxesMethod;
-                    uIClass.rightStaticMethRichTextBox = new RichTextBox { Name = "rightStaticMethRichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -50, -430, -348), Visibility = Visibility.Collapsed };
+                    uIClass.rightStaticMethRichTextBox = new RichTextBox { Name = "rightStaticMethRichTextBox", Width = 600, Height = 500, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -50, -630, -588), Visibility = Visibility.Collapsed, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
                     uIClass.rightStaticMethRichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.rightStaticMethRichTextBox.GotFocus += ChildrenGotFocus;
                     uIClass.rightStaticMethRichTextBox.LostFocus += SaveRichTextBoxLostFocus;
@@ -277,7 +277,7 @@ namespace ClassTemplatesWorld
                     if (dt.rightMessageDataClassCheckBox != true) { uIClass.rightMessageButton.Visibility = Visibility.Collapsed; }
                     uIClass.rightMessageButton.GotFocus += ChildrenGotFocus;
                     uIClass.rightMessageButton.Click += OpenHideRichTextBoxesMethod;
-                    uIClass.rightMessageRichTextBox = new RichTextBox { Name = "rightMessageRichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -30, -430, -366), Visibility = Visibility.Collapsed };
+                    uIClass.rightMessageRichTextBox = new RichTextBox { Name = "rightMessageRichTextBox", Width = 600, Height = 500, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(430, -30, -630, -606), Visibility = Visibility.Collapsed, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
                     uIClass.rightMessageRichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.rightMessageRichTextBox.GotFocus += ChildrenGotFocus;
                     uIClass.rightMessageRichTextBox.LostFocus += SaveRichTextBoxLostFocus;
@@ -296,7 +296,7 @@ namespace ClassTemplatesWorld
                     if (dt.leftADataClassCheckBox != true) { uIClass.leftAButton.Visibility = Visibility.Collapsed; }
                     uIClass.leftAButton.GotFocus += ChildrenGotFocus;
                     uIClass.leftAButton.Click += OpenHideRichTextBoxesMethod;
-                    uIClass.leftARichTextBox = new RichTextBox { Name = "leftARichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(-430, -120, 430, -278), Visibility = Visibility.Collapsed };
+                    uIClass.leftARichTextBox = new RichTextBox { Name = "leftARichTextBox", Width = 600, Height = 500, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(-630, -120, 430, -518), Visibility = Visibility.Collapsed, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
                     uIClass.leftARichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.leftARichTextBox.GotFocus += ChildrenGotFocus;
                     uIClass.leftARichTextBox.LostFocus += SaveRichTextBoxLostFocus;
@@ -312,7 +312,7 @@ namespace ClassTemplatesWorld
                     if (dt.leftMethDataClassCheckBox != true) { uIClass.leftMethButton.Visibility = Visibility.Collapsed; }
                     uIClass.leftMethButton.GotFocus += ChildrenGotFocus;
                     uIClass.leftMethButton.Click += OpenHideRichTextBoxesMethod;
-                    uIClass.leftMethRichTextBox = new RichTextBox { Name = "leftMethRichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(-430, -66, 430, -332), Visibility = Visibility.Collapsed };
+                    uIClass.leftMethRichTextBox = new RichTextBox { Name = "leftMethRichTextBox", Width = 600, Height = 500, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(-630, -66, 430, -572), Visibility = Visibility.Collapsed, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
                     uIClass.leftMethRichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.leftMethRichTextBox.GotFocus += ChildrenGotFocus;
                     uIClass.leftMethRichTextBox.LostFocus += SaveRichTextBoxLostFocus;
@@ -329,7 +329,7 @@ namespace ClassTemplatesWorld
                     if (dt.leftStaticMethDataClassCheckBox != true) { uIClass.leftStaticMethButton.Visibility = Visibility.Collapsed; }
                     uIClass.leftStaticMethButton.GotFocus += ChildrenGotFocus;
                     uIClass.leftStaticMethButton.Click += OpenHideRichTextBoxesMethod;
-                    uIClass.leftStaticMethRichTextBox = new RichTextBox { Name = "leftStaticMethRichTextBox", Width = 400, Height = 260, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(-430, -50, 430, -348), Visibility = Visibility.Collapsed };
+                    uIClass.leftStaticMethRichTextBox = new RichTextBox { Name = "leftStaticMethRichTextBox", Width = 600, Height = 500, FontSize = 12, AcceptsTab = true, VerticalAlignment = VerticalAlignment.Center, Foreground = new SolidColorBrush(Colors.Black), BorderBrush = new SolidColorBrush(Color.FromRgb(121, 120, 120)), BorderThickness = new Thickness(1), Margin = new Thickness(-630, -50, 430, -588), Visibility = Visibility.Collapsed, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
                     uIClass.leftStaticMethRichTextBox.SetValue(Paragraph.LineHeightProperty, 0.1);
                     uIClass.leftStaticMethRichTextBox.GotFocus += ChildrenGotFocus;
                     uIClass.leftStaticMethRichTextBox.LostFocus += SaveRichTextBoxLostFocus;
@@ -1120,6 +1120,13 @@ namespace ClassTemplatesWorld
         private void CanselLoadProjectButtonClick(object sender, RoutedEventArgs e)
         {
             LoadProjectGrid.Visibility = Visibility.Collapsed;
+        }
+
+        // Запрет прокрутки канваса колесом мыши при прокрутке на любом его дочернем элементе, в том числе и на RichTextBox-ах, когда прокручиваемый текст на них достигнет конца или начала
+        private void ScrollViewer1_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (e.OriginalSource.GetType().ToString() == "System.Windows.Controls.Canvas") { e.Handled = true; }
+            if (e.OriginalSource.GetType().ToString() != "System.Windows.Controls.Canvas") { ScrollViewer1.ScrollToVerticalOffset(ScrollViewer1.ContentVerticalOffset); }
         }
     }
 }

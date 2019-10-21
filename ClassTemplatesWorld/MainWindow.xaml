@@ -22,7 +22,7 @@
                       HorizontalScrollBarVisibility="Hidden" Width="1916">
             <Grid Name="canvasGrid">
                 <Canvas Name="bigCanvas" Background="#b2b2b2" MouseLeftButtonDown="canvas_MouseLeftButtonDown"
-                    MouseLeftButtonUp="canvas_MouseLeftButtonUp" MouseMove="canvas_MouseMove">
+                    MouseLeftButtonUp="canvas_MouseLeftButtonUp" MouseMove="canvas_MouseMove" PreviewMouseWheel="ScrollViewer1_PreviewMouseWheel">
                 </Canvas>
             </Grid>
         </ScrollViewer>
