@@ -736,9 +736,9 @@ namespace ClassTemplatesWorld
                                     try
                                     {
                                         DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(DataClass));
-                                        ExampleClass = (DataClass)jsonSerializer.ReadObject(fs);
-                                        TakeClassGrid.Tag = ExampleClass.className;
-                                        Point ParentPoint = ExampleClass.canvasPointClass;
+                                        DataClass ParentClass = (DataClass)jsonSerializer.ReadObject(fs);
+                                        TakeClassGrid.Tag = ParentClass.className;
+                                        Point ParentPoint = ParentClass.canvasPointClass;
                                         Point ChildPoint = new Point((double)TakeClassGrid.GetValue(Canvas.LeftProperty), (double)TakeClassGrid.GetValue(Canvas.TopProperty));
                                         Line[] lines = bigCanvas.Children.OfType<Line>().ToArray();
                                         foreach (Line l in lines) // Постоянно удалять старые линии
